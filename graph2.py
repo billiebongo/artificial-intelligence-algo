@@ -96,7 +96,7 @@ def shortest(v, path):
 import heapq
 
 
-def dijkstra(aGraph, start):
+def make_MST(aGraph, start):
     print('''Dijkstra's shortest path''')
     # Set the distance for the start node to zero
     start.set_distance(0)
@@ -163,10 +163,11 @@ if __name__ == '__main__':
             wid = w.get_id()
             print('( %s , %s, %3d)' % (vid, wid, v.get_weight(w)))
 
-    dijkstra(g, g.get_vertex('a'))
+    make_MST(g, g.get_vertex('a'))
 
-    for t in ['d', 'e', 'f']:
-        target = g.get_vertex(t)
-        path = [t]
-        shortest(target, path)
-        print('The shortest path for %s : %s' % (t, path[::-1]))
+    target_node = 'f'
+    target = g.get_vertex(target_node)
+    path = [target_node]
+    shortest(target, path)
+    print('The shortest path for %s : %s' % (target_node, path[::-1]))
+

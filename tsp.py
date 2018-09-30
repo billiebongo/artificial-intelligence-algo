@@ -1,67 +1,85 @@
-
+import mst.MinimumSpanningTree
 #using A* search to solve tsp.
 
 def calc_squared_distance(p1, p2): #p1 and p2 are lists
     # sqaured distance to shave off computational time
     return (p1[0]-p2[0])**2 + (p1[1]-p2[2])**2
 
-def build_MST(remaining_cities): # remaining_cities is a dict
+def get_h(input):
+    ob = MinimumSpanningTree()
+    ob.buildGraph(input)
+    ob.solve()
+    return ob.getCost()
 
-    # numner of cities on map
-    # implement TSP as a search algo
+def get_input(nodes_dict, unvisited_nodes): #given pairs return input
 
-    #    sort the edges of G in increasing order of cost
+    input = []
+    #generate unique pairs of unvisited nodes
+    for i in range(len(unvisited_nodes)):
+        j = i +1
+        while j < len(unvisited_nodes):
+        # generate list of pairs
+            pair = [unvisited_nodes[i], [j]]
+            pair.append(calc_squared_distance(nodes_dict[unvisited_nodes[i]], nodes_dict[unvisited_nodes[j]]))
+            input.append(pair)
+    print(input)
 
-    #keep a subgraph of G and calc all edges. for each edge in sorted order, if not connected to graph, add edge tp graph.
-
-
-
-return S
-
-file_dir = "/data/tsp_problems/{}".format(str(no_of_cities))
-
-    # generate all posible edges given points
-
-    # add edges to the graph
-    g = Graph()
-    for key, value in remaining_cities.items(): #value is a list of x,y
-        g.add_vertex(key)
-
-        #add an edge for vertex to the other vertex
-        for key2, value2 in remaining_cities.items():
-            if (key != key2):
-                distance = calc_squared_distance(value, value2)
-                g.add_edge(key, key2, distance)
+    return input
 
 
 
-    return h #total weight of MST
 
-def select_next_city(remaining_cities):
-
-    f = calc_f(g, h)
-
-    for k, v in remaining_cities.items():
-        # find g
-        #find h
-        #find f
-
-    select the smallest f
-
-    # choose the lowest f
-
-
-
+    #[['1', '2', 7], ['1', '3', 9], ['1', '6', 14], ['2', '3', 10], ['2', '4', 15]
+    #    , ['3', '4', 11], ['3', '6', 2], ['4', '5', 6], ['5', '6', 9]]
 
 
 
 if __name__ == '__main__':
-    # start at A.
-    # all nodes
-    # Add a to the path
-    # if there are stll unvisited nodes
-    # find next point to go to by puttinf in unvisited nodes
-    # delete thatchosen node from unvisited nodes.
+
+    #just for instance 5 of input size 5
+
+    file_dir = "/data/tsp_problems/5/instance_{}.txt".format(str(no_of_cities))
+    with open(fname) as f:
+        content = f.readlines()
+
+    # all the file input converted into a nodes dictionary
+    nodes_dict = {}
+    # change the city_id from alphabet to numerical immediately after reading the file
+    index = {'A': '1', 'B': '2', 'C': '3', 'D': '4', 'E': '5', 'F': '6'}
+    for line in content:
+        parts = line.split()
+        print(parts)
+        nodes_dict[index[parts[0]]] = [parts[1], parts[2]]
+
+    print(nodes_dict) # all the lines read from the file
+    #nodes_dict is now the dictionary containing unvisited nodes
+    path = ['1'] #visited nodes in order
+
+    unvisted_nodes = [ *nodes_dict ]
+    unvisted_nodes.remove('1') # does not count returning to A either
+    current_node="1" # start node is A by default
+    #decide next step
+    while unvisited nodes is not empty:
+
+        #choose the next step by calculating f of each of next steps (unvisited nodes)
+        f_dict = {}
+        for unvisted_node in unvisted_nodes:
+            h = get_h(get_input(unvisted_nodes))
+            # question: does the mst include the next-node?
+            new_distance = calc_squared_distance()
+            g = g + calc_squared_distance(nodes_dict[current_node], nodes_dict[unvisted_node])
+            f = g + h
+
+        #pick the unvisited node with the lowest f value
+        next_node = min(d.items(), key=lambda x: x[1])
+        path.append(next_node)
+
+        unvisted_nodes.pop(next_node)
+
+    print(path)
+
+
+
 
 
 
