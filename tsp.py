@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
         #choose the next step by calculating f of each of next steps (unvisited nodes)
         f_dict = {}
-        for unvisted_node in unvisted_nodes:
+        for unvisited_node in unvisited_nodes:
             h = get_h(get_input(unvisted_nodes))
             # question: does the mst include the next-node?
             new_distance = calc_squared_distance()
@@ -77,6 +77,7 @@ if __name__ == '__main__':
         unvisted_nodes.pop(next_node)
 
     print(path)
+
 
 
 
