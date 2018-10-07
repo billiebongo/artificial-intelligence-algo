@@ -9,6 +9,9 @@ class MinimumSpanningTree:
     # number of nodes
     nodes = -1
 
+    #new addn attempt to fix out of range issue
+    input = []
+
     # to store the visited nodes
     S = []
 
@@ -54,6 +57,7 @@ class MinimumSpanningTree:
     def solve(self):
 
         # define an array with n nodes
+        print(self.nodes)
         self.S = [0] * (self.nodes + 1)
 
         # define an array with n nodes
@@ -63,6 +67,7 @@ class MinimumSpanningTree:
         r = 1
 
         # step 1 => I mean the start node is selected and the rest of the nodes is r
+        print(self.S)
         self.S[r] = 0
 
         for i in range(1, self.nodes + 1):
@@ -119,10 +124,8 @@ class MinimumSpanningTree:
                     #input.append(a_line.rstrip())
 
         size = len(input)
-        number_of_nodes = 6
-        self.nodes = number_of_nodes
 
-        self.road = [[0 for i in range(0, number_of_nodes + 1)] for j in range(0, number_of_nodes + 1)]
+        self.road = [[0 for i in range(0, self.nodes + 1)] for j in range(0, self.nodes + 1)]
 
         for i in range(0, self.nodes + 1):
 
@@ -144,15 +147,31 @@ class MinimumSpanningTree:
             node2 = int(component[1])
 
             cost = int(component[2])
-
+            print(self.road)
+            print(self.nodes)
             self.road[node1][node2], self.road[node2][node1] = cost, cost
 
+if __name__ == '__main__':
+    ob = MinimumSpanningTree()
+    print("$$$$$$ COST $$$$$$$")
 
-ob = MinimumSpanningTree()
+    ob.nodes =6
 
-ob.solve()
+    #input = [['1', '2', 7], ['1', '3', 9], ['1', '6', 14], ['2', '3', 10], ['2', '4', 15]
+                 , ['3', '4', 11], ['3', '6', 2], ['4', '5', 6], ['5', '6', 9]]
+    input=[['1', '2', 1448], ['1', '3', 4409], ['1', '4', 1252], ['1', '5', 2080], ['2', '3', 9109], ['2', '4', 4580], ['2', '5', 1544], ['3', '4', 6125],
+     ['3', '5', 4913], ['4', '5', 6516], ['5','6', 10]]
 
-print("Minimum Cost = ", ob.getCost())
+    ob.buildGraph(input) # input is the
+    print("WOW")
+    ob.solve()
+    print(ob.getCost())
+    print(ob.getCost())
+#ob = MinimumSpanningTree()
+
+#ob.solve()
+
+#print("Minimum Cost = ", ob.getCost())
 
 #n = 1
 
