@@ -65,11 +65,7 @@ def get_lcv(grid, i, j):
 
 	lcv_queue = queue.PriorityQueue()
 	grid_copy = copy.deepcopy(grid)
-
-	prettyPrint(grid)
-	print(i,j)
 	for value in range(1, 10):
-		print("value {}".format(value))
 
 
 		#find all valid values for cell
@@ -83,8 +79,6 @@ def get_lcv(grid, i, j):
 						if isValidMove(grid_copy, x, j, num1):
 							count = count + 1
 
-			print("count1:" + str(count))
-							# checking for row
 
 			# calc no of valid moves for each cell in row
 			for x in range(0, 9):
@@ -92,7 +86,7 @@ def get_lcv(grid, i, j):
 					for num1 in range(1, 10):
 						if isValidMove(grid_copy, i, x, num1):
 							count = count + 1
-			print("count2:" + str(count))
+
 			# to
 			subGridStartRow = i - i % 3
 			subGridStartCol = j - j % 3
@@ -104,9 +98,12 @@ def get_lcv(grid, i, j):
 						for num1 in range(1, 10):
 							if isValidMove(grid_copy,  x + subGridStartRow, y + subGridStartCol, num1):
 								count = count + 1
-			print("count3"+str(count))
+
 			lcv_queue.put(value, -1*count) # times -1 to make first value to have the highest counts/valid moves
-	print(lcv_queue)
+	if lcv_queue.empty() == True:
+		return None
+
+
 	return lcv_queue
 
 def get_neighbors(grid, i, j):
@@ -120,7 +117,7 @@ def get_neighbors(grid, i, j):
 		for y in range(0, 3):
 			neighbours.append((subGridStartRow+x, subGridStartCol+y))
 	neighbours.remove((i, j))
-	print(neighbours)
+
 	return neighbours
 
 
@@ -134,10 +131,9 @@ def get_degree(grid, min_count_cells):
 	max_unassigned_neighbours = 0
 
 	# for each cell, get calc the degree
-	print("find degrees for")
-	print(min_count_cells)
+
 	for cell in min_count_cells:
-		print(cell)
+
 		num_unassigned_neighbours = 0
 		var_neighbours = get_neighbors(grid,cell[0],cell[1])
 
@@ -147,16 +143,14 @@ def get_degree(grid, min_count_cells):
 			i, j = var[0], var[1]
 			if grid[i][j] == 0:
 				num_unassigned_neighbours += 1
-		print("num of unass neighbouts {}".format(num_unassigned_neighbours))
 		if num_unassigned_neighbours >max_unassigned_neighbours:
 			#does not consider ties, just takes last one with count == maxcoutn
-			print("max found!")
-			print(cell)
+
 			degree_i = cell[0]
 			degree_j = cell[1]
 			max_unassigned_neighbours = num_unassigned_neighbours
-	print("returning...")
-	print(degree_i, degree_j)
+
+
 	return degree_i, degree_j
 
 
@@ -198,8 +192,6 @@ def get_MRV(grid):
 	#    return -1, -1
 
 
-	print("min count cells is ")
-	print(min_count_cells)
 	if len(min_count_cells) >1:
 		return True, min_count_cells # list of 2-element lists
 	# there is no tie
@@ -219,19 +211,14 @@ def get_MRV(grid):
 #removed from the domain of the free variables that are either in the same line, in the
 #same column or in the same square as the assigned variable
 def solveBacktrackingFWD(grid):
-	prettyPrint(grid)
-	#prettyPrint(grid)
-
 	# Get a unassigned loaction from the grid
 	i, j = findUnassignedLocation(grid)
 	steps = 0
-	if steps >10000:
-		print("overshot 10000")
 
-		prettyPrint(grid)
-		return grid, steps
-
+	#prettyPrint(grid)
 	if i == -1:
+		print("DONE!")
+		print("wow")
 		return True, steps
 
 	# Solving sudoku by putting all possible values in unassigned loaction one by one and checking, backtrack if fail
@@ -239,31 +226,31 @@ def solveBacktrackingFWD(grid):
 		if isValidMove(grid, i, j, num):
 			grid[i][j] = num
 			steps = steps + 1
-
-
 			# Recursive Call
-			if solveBacktrackingFWD(grid)[0]: #return False to call for backtracking!!!
-				return True, steps
-
 			# Backtrack all the way until hit solvebacktracing -- true
-			grid[i][j] = 0
 
+			if do_forwardchecking(grid, i,j) == True:
+				if solveBacktrackingFWD(grid)[0]:  # return False to call for backtracking!!!
+					return True, steps
+			#else:
+
+			grid[i][j] = 0
+	#print("sry no opt for {},{}! backrack".format(i,j))
 	return False, steps
 	# Game over check, if sudoku is solved fully or not
-	i, j = findUnassignedLocation(grid, N)
-	if i == -1:
-		return True, consistencyChecks3
+	#i, j = findUnassignedLocation(grid, N)
+	#if i == -1:
+#		return True, consistencyChecks3
 
 
 
 # Function to solve sudoku by back tracking
 def solveBacktracking(grid):
 
-	prettyPrint(grid)
 
 	# Get a unassigned loaction from the grid
 	i, j = findUnassignedLocation(grid)
-
+	steps=0
 	if steps >10000:
 		return grid, steps
 
@@ -329,7 +316,8 @@ def solveSudokuBacktrackingMRVfwd(grid):
 
 	# Get set of lcv values for mrv cell
 	lcv_queue = get_lcv(grid, i, j)
-
+	if lcv_queue.empty():
+		print("OMG")
 	# Check by putting all lcv_values in MRV cell one by one and try to solve sudoku by backtracking and forward checking
 	while not lcv_queue.empty():
 		lcv_value = lcv_queue.get()
@@ -358,49 +346,39 @@ def solveSudokuBacktrackingMRVDegreefwdLCV(grid):
 	steps3=0
 	# done
 	if i == -1:
-		prettyPrint(grid)
 		return True, steps3
-
-
 	# Get MRV cell from the grid
 	tie, min_count_cells = get_MRV(grid)
-	print("min count cells are")
-	print(tie)
-	print(min_count_cells)
+
 	if tie == True:
 		i, j = get_degree(grid, min_count_cells)
 		#need to make sure only return one set? no ties
 	else:
-		print("YAP")
+
 		i, j = min_count_cells[0][0], min_count_cells[0][1]
 
 	# Get set of lcv values for chosen var cell
-
 	lcv_queue = get_lcv(grid,  i, j)
-
-
-	print(lcv_queue.empty())
-	print("lcv queue empty causes term")
 	# find MRV then apply LCV to choose possible values with priority
-	while not lcv_queue.empty():
-		lcv_value = lcv_queue.get()
-		print(lcv_value)
-		if isValidMove(grid, i, j, lcv_value):
-			grid[i][j] = lcv_value
-			steps3=0
-			steps3 += 1
+	if lcv_queue != None:
+		while not lcv_queue.empty():
+			lcv_value = lcv_queue.get()
 
-			# Do forward checking after assigning value to the cell
-			fwdcheckingresult = do_forwardchecking(grid, i, j)
+			if isValidMove(grid, i, j, lcv_value):
+				grid[i][j] = lcv_value
+				steps3=0
+				steps3 += 1
 
-			if fwdcheckingresult == True:
-				if solveSudokuBacktrackingMRVDegreefwdLCV(grid)[0]:
-					return True, steps3
-			else:
+				# Do forward checking after assigning value to the cell
+				fwdcheckingresult = do_forwardchecking(grid, i, j)
+
+				if fwdcheckingresult == True:
+					if solveSudokuBacktrackingMRVDegreefwdLCV(grid)[0]:
+						return True, steps3
+
 				grid[i][j] = 0
 
 	steps3 = 2132
-	print("oops")
 	return False, steps3
 
 
@@ -408,23 +386,37 @@ def runAll(version):
 	if version == 'A':
 
 
-		for x in range(1, 72):
-			for y in range(1, 11):
+		for x in range(12, 13):
+			for y in range(3, 5):
 				grid = getGrid(os.path.join(fileDir, 'data/sudoku_problems/{}/{}.sd'.format(x, y)))
 				boo, steps = solveBacktracking(grid)
 				prettyPrint(grid)
 	if version == 'B':
-		for x in range(52, 58):
-			for y in range(3, 5):
+		for x in range(4, 6):
+			for y in range(1, 7):
+				print("NEW PROBLEM B!!!: {}/{}".format(str(x), str(y)))
 				grid = getGrid(os.path.join(fileDir, 'data/sudoku_problems/{}/{}.sd'.format(x, y)))
 				boo, steps = solveBacktrackingFWD(grid)
 				prettyPrint(grid)
 	if version == 'C':
-		for x in range(57, 58):
-			for y in range(4, 5):
+		for x in range(10,12):
+			for y in range(4, 7):
+				print("NEW PROBLEM: {}/{}".format(str(x), str(y)))
+
 				grid = getGrid(os.path.join(fileDir, 'data/sudoku_problems/{}/{}.sd'.format(x, y)))
+
 				boo, steps = solveSudokuBacktrackingMRVDegreefwdLCV(grid)
-				print(grid, steps)
+				prettyPrint(grid)
+	if version == 'C':
+		for x in range(60, 70):
+			for y in range(1, 5):
+				print("NEW PROBLEM: {}/{}".format(str(x), str(y)))
+
+				grid = getGrid(os.path.join(fileDir, 'data/sudoku_problems/{}/{}.sd'.format(x, y)))
+
+				#boo, steps = solveSudokuBacktrackingMRVDegreefwdLCV(grid)
+				boo, steps = solveSudokuBacktrackingMRVDegreefwdLCV(grid)
+				prettyPrint(grid)
 
 
 def runOne(x, y, version):
@@ -437,11 +429,8 @@ def runOne(x, y, version):
 	if version == 'C':
 		steps3 = 0
 
-
-
 		boo, steps3 =  solveSudokuBacktrackingMRVDegreefwdLCV(grid)
-	if version == 'D': #test
-		boo, steps3 = solveSudokuBacktrackingMRVfwd(grid)
+
 
 
 if __name__ == "__main__":
@@ -450,5 +439,8 @@ if __name__ == "__main__":
 
 	# 2bd: implement switch to choose between suing LCV or the other first
 
-	runOne(36,8, 'C')
+	#runOne(46,2, 'B')
+	runAll('C')
+
 	#runAll('B')
+	#runAll('C')

@@ -67,8 +67,6 @@ def print_matrix(matrix):
 
 # Function for finding first unassigned loction in the grid
 def findUnassignedLocation(grid):
-    print(grid)
-    print("CANT FIND UNASS")
     for i in range(0, 9):
         for j in range(0, 9):
             if grid[i][j] == 0:
