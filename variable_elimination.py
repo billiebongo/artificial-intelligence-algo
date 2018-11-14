@@ -13,8 +13,7 @@ def getOrderedListOfHiddenVariables(query_keys, evid_keys):
     for o in order:
         if o not in query_keys and o not in evid_keys:
             hidden_var.append(o)
-    print("HIDDEN")
-    print(hidden_var)
+
     return hidden_var
 
 
@@ -23,40 +22,28 @@ def restrict(factor, variable, value):
     #for i in range(variable):
     #    factor[]
     #return Factor(,factor.array.take(value, variable))
-    print(factor.__dict__)
+
     var_index = factor.variables.index(variable)
     restricted_arr = np.take(factor.array, value, axis=var_index)
     restricted_var = copy.deepcopy(factor.variables)
     restricted_var.remove(variable)
     restricted_factor = Factor(restricted_var, restricted_arr)
-    print(restricted_factor.__dict__)
-    print("RESTR")
+
     return restricted_factor
 
 def sum_out(factor, variable):
     var_index = factor.variables.index(variable)
     result_arr = np.sum(factor.array, var_index)
-    print("MY MY MY")
-    print(factor.variables)
-    print(copy.deepcopy(factor.variables))
-    print(variable)
+
     result_var = copy.deepcopy(factor.variables)
     result_var.remove(variable)
     result_factor = Factor(result_var, result_arr)
-    print(result_var)
-    print("TESINF SUMMING OUT")
-    print(result_factor.array)
-    print(result_factor.variables)
-    print("testend")
+
     return result_factor
 
 def multiply(factor1, factor2):
     """ merge on common variables. for one common var ONLY """
-    print("MULTIPLYING")
-    print(factor1.variables)
-    print(factor2.variables)
-    print(factor1.array)
-    print(factor2.array)
+
     copy1 = copy.deepcopy(factor1)
     copy2 = copy.deepcopy(factor2)
 
@@ -76,9 +63,7 @@ def multiply(factor1, factor2):
 
     product_arr = np.multiply(copy1.array, copy2.array)
     product_factor = Factor(sorted_var, product_arr)
-    print("MULTIPLYING RESULTS")
-    print(product_factor.array)
-    print(product_factor.variables)
+
     return product_factor
 
 
@@ -92,93 +77,72 @@ def normalizedFactor(factor):
     return Factor(factor.variables,factor.array / np.sum(factor.array))
 
 def resultFactor(factorList, queryVariables, orderedListOfHiddenVariables,EvidenceList):
-
-    for f in factorList:
-        print(f.variables)
+    #print("factors are")
+    #for f in factorList:
+    #   print(f.variables)
     factors_to_remove = []
     for factor in factorList:
         flag=0
         #restrict
 
         for var in EvidenceList:
-            print("RIDDING OF EVIDENCE" + var)
-            print("FACTOR IS")
-            print(factor.variables)
+
             if var in factor.variables:
                 flag=1 #indicate to remove old factor
-                print("YES EVID IN FACTOR")
-                print(var+"is in")
-                print(factor.variables)
+
 
                 #factor, var, vALUE
                 new_factor = restrict(factor, var, EvidenceList[var])
         if flag==1:
             factors_to_remove.append(factor)
-            print("factor b4 restrict")
-            print(factor.variables)
-            print("new factor after restrict")
-            print(new_factor.variables)
+            #if restrict f(M), the variables list becomes empty.
+            #print("factor b4 restrict")
+            #print(factor.variables)
+            #print("new factor after restrict")
+            #print(new_factor.variables)
             factorList.append(new_factor)
 
     factorList=[x for x in factorList if x not in factors_to_remove]
-    print("FACTOR LIST NOW AFTER results")
-    for j in factorList:
-        print(j.variables)
 
 
     for hiddenVariable in orderedListOfHiddenVariables:
         #find factors containing hiddenVariable
         factors_with_hidden_var=[]
-        print("STARTING NEW HIDDEN VAR")
+
 
         for f in factorList:
-            print("HIDDEN VAR:"+hiddenVariable)
-            print("F IS")
-            print(f.variables)
+
             if hiddenVariable in f.variables:
 
-                print(hiddenVariable)
+                #print(hiddenVariable)
                 factors_with_hidden_var.append(f)
 
                 #factorList.remove(f) IMPT: CANNOT REMOVE WHEN ITERATING@!!
 
 
-        for j in factors_with_hidden_var:
-            print(j.variables)
+        #for j in factors_with_hidden_var:
+        #    print(j.variables)
         if len(factors_with_hidden_var)>1:
             new_factor=factors_with_hidden_var[0]
             for i in range(len(factors_with_hidden_var)-1):
-                print(i)
-                print("BEEP")
-                print( factors_with_hidden_var[i+1])
+
+
                 new_factor = multiply(new_factor, factors_with_hidden_var[i+1])
-            print(hiddenVariable+"!!!!!!!!!!!!!!!!!!!!!!!!")
-            print(new_factor.variables)
+
             new_factor=sum_out(new_factor, hiddenVariable)
-            print("new faxtor var")
-            print(new_factor.variables)
-            print(new_factor.variables)
+
             factorList.append(new_factor)
         else:
             new_factor=sum_out(factors_with_hidden_var[0], hiddenVariable)
 
             factorList.append(new_factor)
 
-        print(hiddenVariable)
-        print("new factor added")
-        print(new_factor.variables)
-        for f in factorList:
-            print(f.variables)
-        #remove old factors from factorList
-        print("CHECK THIS NOW")
-        print(len(factorList))
-        print(len(factors_with_hidden_var))
-        factorList=[x for x in factorList if x not in factors_with_hidden_var]
-        print(len(factorList))
 
-    for f in factorList:
-        print(f.variables)
-        print(f.array)
+
+        #remove old factors from factorList
+
+        factorList=[x for x in factorList if x not in factors_with_hidden_var]
+
 
     new_factor =  factorList[0]
 
@@ -260,10 +224,10 @@ def run_test_input():
     result=resultFactor(factorList,queryVariables,orderedListofHiddenVariables, EvidenceList)
     print(result.__dict__)
 
-#run_q1()
+run_q1()
 
-#run_q2()
-
-#run_test_input()
+run_q2()
 
 run_q3()
+
+run_test_input()
