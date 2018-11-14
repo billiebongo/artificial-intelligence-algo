@@ -21,10 +21,10 @@ class Factor:
     factor's single value. Constaint factors migth be created when a
     factor is restricted.'''
 
-    def __init__(self, name, variables, array):
+    def __init__(self, variables, array):
         '''create a Factor object, specify the Factor name (a string)
         and its scope (an ORDERED list of variable objects).'''
-        self.name = name
+
         self.variables = variables
         self.array = array
 
@@ -51,8 +51,10 @@ class Factor:
 
         return Factor(name, new_var_set, array)
 
-    def sumout(self, var):
-        
+    def sumout(self, name,var):
+        var_idx = self.variables.index(var)
+
+        return Factor(name, self.variables.remove(var),self.array.sum(axis=var_idx))
 
 
     def return_uncommon_variables(self, variables):
