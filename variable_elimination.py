@@ -7,8 +7,11 @@ import copy
 
 # factor should be n dimensional array
 
-def getOrderedListOfHiddenVariables(query_keys, evid_keys):
-    order=["B", "FH", "M", "NA", "NH", "S"]
+def getOrderedListOfHiddenVariables(order_no,query_keys, evid_keys):
+    if order_no==1:
+        order=["B", "FH", "M", "NA", "NH", "S"]
+    else:
+        order=["W","G","A","B", "E"]
     hidden_var=[]
     for o in order:
         if o not in query_keys and o not in evid_keys:
@@ -168,12 +171,21 @@ f6=Factor(["FH","M",  "NH", "S"],
 
                     [[[0,0.5],[0.2,0.75]],[[0.4,0.9],[0.65,0.99]]]]))
 
+g1=Factor(["B"],np.array([0.9,0.1]))
+g2=Factor(["E"],np.array([0.95,0.05]))
+g3=Factor(["A","B", "E"],
+          np.array([[[0.95,0.9],[0.1,0.05]],[[0.6,0.1],[0.9, 0.05]]]))
+
+g4=Factor(["A", "W"], np.array([[0.6, 0.4],[0.2,0.8]]))
+g5=Factor(["A", "G"], np.array([[0.95, 0.05],[0.6,0.4]]))
+
+
 def run_q1():
     print("***********QUESTION 1************")
     factorList=[f1,f2,f3,f4,f5,f6]
     queryVariables = {"FH":1}
     EvidenceList = {}
-    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(queryVariables.keys(), EvidenceList.keys())
+    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(1,queryVariables.keys(), EvidenceList.keys())
     result=resultFactor(factorList,queryVariables,orderedListofHiddenVariables, EvidenceList)
     print(result.variables, result.array)
     test=[[[0.32,0.48],[0.14,0.06]],[[0.36,0.54],[0.07,0.03]]]
@@ -188,7 +200,7 @@ def run_q2():
     factorList=[f1,f2,f3,f4,f5,f6]
     queryVariables = {"S":1}
     EvidenceList = {"FH":1, "M":1}
-    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(queryVariables.keys(), EvidenceList.keys())
+    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(1,queryVariables.keys(), EvidenceList.keys())
     result=resultFactor(factorList,queryVariables,orderedListofHiddenVariables, EvidenceList)
     print("SOLUTION")
     print(result.variables, result.array)
@@ -202,7 +214,7 @@ def run_q3():
     factorList=[f1,f2,f3,f4,f5,f6]
     queryVariables = {"S":1}
     EvidenceList = {"B":1}
-    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(queryVariables.keys(), EvidenceList.keys())
+    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(1,queryVariables.keys(), EvidenceList.keys())
     result=resultFactor(factorList,queryVariables,orderedListofHiddenVariables, EvidenceList)
     print("SOLUTION")
     print(result.variables, result.array)
@@ -224,10 +236,113 @@ def run_test_input():
     result=resultFactor(factorList,queryVariables,orderedListofHiddenVariables, EvidenceList)
     print(result.__dict__)
 
+def run_q4_1():
+    """Calculate P (G|W )"""
+    print("***Question 2.1*****")
+    EvidenceList={"W":1}
+    queryVariables={"G":1}
+    factorList=[g1,g2,g3,g4,g5]
+    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(2,queryVariables.keys(), EvidenceList.keys())
+
+    result=resultFactor(factorList,queryVariables,orderedListofHiddenVariables, EvidenceList)
+    print(result.__dict__)
+    return
+
+def run_q4_2():
+    '''P (G|¬W ) separately and show that they are not equal.'''
+    print("***Question 2.2*****")
+    EvidenceList={"W":0}
+    queryVariables={"G":1}
+    factorList=[g1,g2,g3,g4,g5]
+    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(2,queryVariables.keys(), EvidenceList.keys())
+    result=resultFactor(factorList,queryVariables,orderedListofHiddenVariables, EvidenceList)
+    print(result.__dict__)
+    return
+def run_q5_1():
+    """P (B|W ∧ G ∧ A)"""
+    print("***Question 3.1*****")
+    EvidenceList={"W":1, "G":1, "A":1}
+    queryVariables={"B":1}
+    factorList=[g1,g2,g3,g4,g5]
+    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(2,queryVariables.keys(), EvidenceList.keys())
+    result=resultFactor(factorList,queryVariables,orderedListofHiddenVariables, EvidenceList)
+    print(result.__dict__)
+    return
+
+
+    return
+def run_q5_2():
+    """P (B|A)"""
+    print("***Question 3.2*****")
+    EvidenceList = {"A": 1}
+    queryVariables = {"B": 1}
+    factorList = [g1, g2, g3, g4, g5]
+    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(2, queryVariables.keys(), EvidenceList.keys())
+    result = resultFactor(factorList, queryVariables, orderedListofHiddenVariables, EvidenceList)
+    print(result.__dict__)
+    return
+
+def run_q6_1():
+    """P (B|A ∧ G ∧ W )"""
+    print("***Question 4.1*P (B|A ∧ G ∧ W )****")
+    EvidenceList = {"A": 1,"G": 1,"W": 1}
+    queryVariables = {"B": 1}
+    factorList = [g1, g2, g3, g4, g5]
+    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(2, queryVariables.keys(), EvidenceList.keys())
+    result = resultFactor(factorList, queryVariables, orderedListofHiddenVariables, EvidenceList)
+    print(result.__dict__)
+    return
+
+def run_q6_2():
+    """P (B|W )"""
+    print("***Question 5.1*P (B|W )****")
+    EvidenceList = {"W": 1}
+    queryVariables = {"B": 1}
+    factorList = [g1, g2, g3, g4, g5]
+    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(2, queryVariables.keys(), EvidenceList.keys())
+    result = resultFactor(factorList, queryVariables, orderedListofHiddenVariables, EvidenceList)
+    print(result.__dict__)
+    return
+
+def run_q7_1():
+    """P (B|W )"""
+    print("***Question 5.1*P (E|A ∧ B)****")
+    EvidenceList = {"A": 1,"B": 1}
+    queryVariables = {"E": 1}
+    factorList = [g1, g2, g3, g4, g5]
+    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(2, queryVariables.keys(), EvidenceList.keys())
+    result = resultFactor(factorList, queryVariables, orderedListofHiddenVariables, EvidenceList)
+    print(result.__dict__)
+    return
+
+def run_q7_2():
+    """P (E|A)"""
+    print("***Question 5.2*P (E|A)****")
+    EvidenceList = {"A": 1}
+    queryVariables = {"E": 1}
+    factorList = [g1, g2, g3, g4, g5]
+    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(2, queryVariables.keys(), EvidenceList.keys())
+    result = resultFactor(factorList, queryVariables, orderedListofHiddenVariables, EvidenceList)
+    print(result.__dict__)
+    return
 run_q1()
 
 run_q2()
 
 run_q3()
 
-run_test_input()
+#run_test_input()
+run_q4_1()
+run_q4_2()
+
+run_q5_1()
+run_q5_2()
+
+run_q6_1()
+run_q6_2()
+
+run_q7_1()
+run_q7_2()
+
+
+
