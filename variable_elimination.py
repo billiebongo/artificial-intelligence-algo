@@ -8,6 +8,7 @@ import copy
 # factor should be n dimensional array
 
 def getOrderedListOfHiddenVariables(order_no,query_keys, evid_keys):
+    """returns ordered list of hidden variables"""
     if order_no==1:
         order=["B", "FH", "M", "NA", "NH", "S"]
     else:
@@ -37,7 +38,6 @@ def restrict(factor, variable, value):
 def sum_out(factor, variable):
     var_index = factor.variables.index(variable)
     result_arr = np.sum(factor.array, var_index)
-
     result_var = copy.deepcopy(factor.variables)
     result_var.remove(variable)
     result_factor = Factor(result_var, result_arr)
@@ -71,18 +71,12 @@ def multiply(factor1, factor2):
 
 
 
-#def sumout(factor, variable):
-
- #   return factor.sumout("sum_fact",variable)
-
 def normalizedFactor(factor):
-    #factor.variables should be only one
+    #factor.variables should be only one variable
     return Factor(factor.variables,factor.array / np.sum(factor.array))
 
 def resultFactor(factorList, queryVariables, orderedListOfHiddenVariables,EvidenceList):
-    #print("factors are")
-    #for f in factorList:
-    #   print(f.variables)
+    """ returns probability of queryVariables"""
     factors_to_remove = []
     for factor in factorList:
         flag=0
@@ -98,11 +92,6 @@ def resultFactor(factorList, queryVariables, orderedListOfHiddenVariables,Eviden
                 new_factor = restrict(factor, var, EvidenceList[var])
         if flag==1:
             factors_to_remove.append(factor)
-            #if restrict f(M), the variables list becomes empty.
-            #print("factor b4 restrict")
-            #print(factor.variables)
-            #print("new factor after restrict")
-            #print(new_factor.variables)
             factorList.append(new_factor)
 
     factorList=[x for x in factorList if x not in factors_to_remove]
@@ -158,7 +147,7 @@ def resultFactor(factorList, queryVariables, orderedListOfHiddenVariables,Eviden
     return new_factor
 
 
-
+# question 1 factors
 f1=Factor(["S"],np.array([0.95,0.05]))
 f2=Factor(["M"], np.array([27/28, 1/28]))
 f3=Factor(["NA"], np.array([0.7,0.3]))
@@ -171,6 +160,7 @@ f6=Factor(["FH","M",  "NH", "S"],
 
                     [[[0,0.5],[0.2,0.75]],[[0.4,0.9],[0.65,0.99]]]]))
 
+#question 2 factors
 g1=Factor(["B"],np.array([0.9,0.1]))
 g2=Factor(["E"],np.array([0.95,0.05]))
 g3=Factor(["A","B", "E"],
@@ -182,7 +172,7 @@ g5=Factor(["A", "G"], np.array([[0.95, 0.05],[0.6,0.4]]))
 
 
 def run_q1():
-    print("***********QUESTION 1************")
+    print("***********QUESTION 1b************")
     factorList=[f1,f2,f3,f4,f5,f6]
     queryVariables = {"FH":1}
     EvidenceList = {}
@@ -197,7 +187,7 @@ def run_q1():
 def run_q2():
     """Fido is howling. You look out the window and see that the moon is
     full. What is probability that Fido is sick? P(S|FH=t, M=t )"""
-    print("***********QUESTION 2************")
+    print("***********QUESTION 1c************")
     factorList=[f1,f2,f3,f4,f5,f6]
     queryVariables = {"S":1}
     EvidenceList = {"FH":1, "M":1}
@@ -211,7 +201,7 @@ def run_q3():
     """You walk to the kitchen and
     see that Fido has not eaten and his food bowl is full. Given this new information,
     what is the probability that Fido is sick?"""
-    print("***********QUESTION 3************")
+    print("***********QUESTION 1d************")
     factorList=[f1,f2,f3,f4,f5,f6]
     queryVariables = {"S":1}
     EvidenceList = {"B":1}
@@ -220,7 +210,19 @@ def run_q3():
     print("SOLUTION")
     print(result.variables, result.array)
 
-
+def run_q1e():
+    """(Fido is howling, the moon is full and Fido has no eaten his dinner.)
+    You decide to call your neighbour to see if they are home or not. The phone rings
+    and rings so you conclude that your neighbour is away. Given this information,
+    what is the probability that Fido is sick?"""
+    print("***********QUESTION 1e************")
+    factorList=[f1,f2,f3,f4,f5,f6]
+    queryVariables = {"S":1}
+    EvidenceList = {"FH":1, "M":1, "B":1, "NA":1}
+    orderedListofHiddenVariables = getOrderedListOfHiddenVariables(1,queryVariables.keys(), EvidenceList.keys())
+    result=resultFactor(factorList,queryVariables,orderedListofHiddenVariables, EvidenceList)
+    print("SOLUTION")
+    print(result.variables, result.array)
 
 def run_test_input():
     """ Run test input with verified results to test correctness of program"""
@@ -239,7 +241,7 @@ def run_test_input():
 
 def run_q4_1():
     """Calculate P (G|W )"""
-    print("***Question 2.1*****")
+    print("***P (G|W )*****")
     EvidenceList={"W":1}
     queryVariables={"G":1}
     factorList=[g1,g2,g3,g4,g5]
@@ -251,7 +253,7 @@ def run_q4_1():
 
 def run_q4_2():
     '''P (G|¬W ) separately and show that they are not equal.'''
-    print("***Question 2.2*****")
+    print("***P (G|¬W )*****")
     EvidenceList={"W":0}
     queryVariables={"G":1}
     factorList=[g1,g2,g3,g4,g5]
@@ -261,7 +263,7 @@ def run_q4_2():
     return
 def run_q5_1():
     """P (B|W ∧ G ∧ A)"""
-    print("***Question 3.1*****")
+    print("***P (B|W ∧ G ∧ A)*****")
     EvidenceList={"W":1, "G":1, "A":1}
     queryVariables={"B":1}
     factorList=[g1,g2,g3,g4,g5]
@@ -274,7 +276,7 @@ def run_q5_1():
     return
 def run_q5_2():
     """P (B|A)"""
-    print("***Question 3.2*****")
+    print("***P (B|A)*****")
     EvidenceList = {"A": 1}
     queryVariables = {"B": 1}
     factorList = [g1, g2, g3, g4, g5]
@@ -285,7 +287,7 @@ def run_q5_2():
 
 def run_q6_1():
     """P (B|A ∧ G ∧ W )"""
-    print("***Question 4.1*P (B|A ∧ G ∧ W )****")
+    print("***P (B|A ∧ G ∧ W )****")
     EvidenceList = {"A": 1,"G": 1,"W": 1}
     queryVariables = {"B": 1}
     factorList = [g1, g2, g3, g4, g5]
@@ -296,7 +298,7 @@ def run_q6_1():
 
 def run_q6_2():
     """P (B|W )"""
-    print("***Question 5.1*P (B|W )****")
+    print("***P (B|W )****")
     EvidenceList = {"W": 1}
     queryVariables = {"B": 1}
     factorList = [g1, g2, g3, g4, g5]
@@ -306,8 +308,8 @@ def run_q6_2():
     return
 
 def run_q7_1():
-    """P (B|W )"""
-    print("***Question 5.1*P (E|A ∧ B)****")
+    """P (E|A ∧ B)"""
+    print("****P (E|A ∧ B)****")
     EvidenceList = {"A": 1,"B": 1}
     queryVariables = {"E": 1}
     factorList = [g1, g2, g3, g4, g5]
@@ -318,7 +320,7 @@ def run_q7_1():
 
 def run_q7_2():
     """P (E|A)"""
-    print("***Question 5.2*P (E|A)****")
+    print("****P (E|A)****")
     EvidenceList = {"A": 1}
     queryVariables = {"E": 1}
     factorList = [g1, g2, g3, g4, g5]
@@ -331,7 +333,7 @@ run_q1()
 run_q2()
 
 run_q3()
-
+run_q1e()
 #run_test_input()
 run_q4_1()
 run_q4_2()
