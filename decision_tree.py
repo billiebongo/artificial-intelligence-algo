@@ -12,7 +12,7 @@ class DecisionTree():
 
 # Class Node which will be used while classify a test-instance using the tree which was built earlier
 class Node():
-	value = "" # lower or higher
+	value = "" #class
 	children = []
 
 	def __init__(self, class, children):
@@ -162,16 +162,14 @@ def get_values(data, features, attr):
 	return values
 
 
-def split_examples(examples, f, splitting_point):
 
 
 # This function is used to build the decision tree using the given data, features and the target features. It returns the decision tree in the end.
 def ID3(examples, features):
 
-	examples= examples[:]
 
 	# list of all classes of data
-	classes = [row[features.index(target)] for row in data]
+	classes = [row[-1] for row in examples]
 
 	#if all in the same class
 	if len(set(classes))==1: #classes.count(classes[0]) == len(classes):
@@ -183,24 +181,31 @@ def ID3(examples, features):
 		return Node(choose_majority_class(examples, features), examples)
 	#if no more examples, but still got features, return leaf node with majority decision of parent node
 	elif len(examples)==0:
+		print("no examples!")
 		return Node(choose_parent_class, examples)
 
 	else:
         best_feature, splitting_point=choose_best_feature(examples, features, current_entropy)
         #split examples with spliting point
-        arc = split_examples(examples, best_feature, splitting_point)
 
-	#
-	else:
-		best = choose_best_feature(data, features, target)
-		tree = {best: {}}
+		f_index = get_f_index(best_feature)
+		less_than_examples=[]
+		more_than_examples=[]
+		for row in examples:
+			if row[f_index] < splitting_point:
+				less_than_examples.append(row)
 
-		for val in get_values(data, features, best):
-			new_data = get_data(data, features, best, val)
-			newAttr = features[:]
-			newAttr.remove(best)
-			subtree = ID3(new_data, newAttr, target)
-			tree[best][val] = subtree
+
+		subtree_1 = ID3(less_than_examples, features)
+		for row in examples:
+			if row[f_index] >= splitting_point:
+				more_than_examples.append(row)
+		#assuming splitting pt can nvr be below -1
+		subtree_2 = ID3(more_than_examples, features)
+
+
+		tree = {best_feature:{-1:subtree_1,splitting_point: subtree_2}}
+
 
 	return tree
 
